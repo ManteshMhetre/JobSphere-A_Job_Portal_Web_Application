@@ -10,7 +10,9 @@ cloudinary.v2.config({
 const port = process.env.PORT || 4000;
 
 app.listen(port, () => {
-  console.log(`🚀 Job Portal Server (Raw PostgreSQL) listening at port ${port}`);
+  console.log(
+    `🚀 Job Portal Server (Raw PostgreSQL) listening at port ${port}`
+  );
   console.log(`📊 Health check: http://localhost:${port}/api/health`);
   console.log(`🔗 API endpoints: http://localhost:${port}/api/v1/`);
 });

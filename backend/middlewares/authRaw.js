@@ -8,16 +8,16 @@ export const isAuthenticated = catchAsyncErrors(async (req, res, next) => {
   if (!token) {
     return next(new ErrorHandler("User is not authenticated.", 400));
   }
-  
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     const user = await UserModel.findById(decoded.id);
-    
+
     if (!user) {
       return next(new ErrorHandler("User not found.", 404));
     }
-    
+
     req.user = user;
     next();
   } catch (error) {
@@ -30,7 +30,8 @@ export const isAuthorized = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return next(
         new ErrorHandler(
-          `${req.user.role} not allowed to access this resource.`, 403
+          `${req.user.role} not allowed to access this resource.`,
+          403
         )
       );
     }

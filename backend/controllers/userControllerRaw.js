@@ -3,7 +3,7 @@ import ErrorHandler from "../middlewares/error.js";
 import { UserModel } from "../models/userModelRaw.js";
 import { v2 as cloudinary } from "cloudinary";
 import { sendToken } from "../utils/jwtToken.js";
-import { convertPhoneToNumber } from "../utils/phoneUtils.js";    
+import { convertPhoneToNumber } from "../utils/phoneUtils.js";
 
 export const register = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -31,20 +31,27 @@ export const register = catchAsyncErrors(async (req, res, next) => {
 
     // Validate user data
     const validationErrors = UserModel.validateUserData({
-      name, email, phone, address, password, role, 
-      firstNiche, secondNiche, thirdNiche
+      name,
+      email,
+      phone,
+      address,
+      password,
+      role,
+      firstNiche,
+      secondNiche,
+      thirdNiche,
     });
-    
+
     if (validationErrors.length > 0) {
       return next(new ErrorHandler(validationErrors.join(", "), 400));
     }
-    
+
     // Check if user already exists
     const existingUser = await UserModel.findByEmail(email);
     if (existingUser) {
       return next(new ErrorHandler("Email is already registered.", 400));
     }
-    
+
     // Convert phone to integer
     let phoneNumber;
     try {
@@ -52,7 +59,7 @@ export const register = catchAsyncErrors(async (req, res, next) => {
     } catch (error) {
       return next(new ErrorHandler(error.message, 400));
     }
-    
+
     const userData = {
       name,
       email,
@@ -65,7 +72,7 @@ export const register = catchAsyncErrors(async (req, res, next) => {
       thirdNiche,
       coverLetter,
     };
-    
+
     if (req.files && req.files.resume) {
       const { resume } = req.files;
       if (resume) {
@@ -81,10 +88,10 @@ export const register = catchAsyncErrors(async (req, res, next) => {
         }
       }
     }
-    
+
     const user = await UserModel.create(userData);
     const userResponse = UserModel.formatUserResponse(user);
-    
+
     sendToken(userResponse, 201, res, "User Registered");
   } catch (error) {
     next(new ErrorHandler(error.message || "Registration failed", 500));
@@ -93,27 +100,27 @@ export const register = catchAsyncErrors(async (req, res, next) => {
 
 export const login = catchAsyncErrors(async (req, res, next) => {
   const { role, email, password } = req.body;
-  
+
   if (!role || !email || !password) {
     return next(
       new ErrorHandler("Email, password, and role are required.", 400)
     );
   }
-  
+
   const user = await UserModel.findByEmail(email);
   if (!user) {
     return next(new ErrorHandler("Invalid email or password.", 400));
   }
-  
+
   const isPasswordMatched = await UserModel.comparePassword(user, password);
   if (!isPasswordMatched) {
     return next(new ErrorHandler("Invalid email or password.", 400));
   }
-  
+
   if (user.role !== role) {
     return next(new ErrorHandler("Invalid user role.", 400));
   }
-  
+
   const userResponse = UserModel.formatUserResponse(user);
   sendToken(userResponse, 200, res, "User logged in successfully.");
 });
@@ -133,13 +140,13 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 
 export const getUser = catchAsyncErrors(async (req, res, next) => {
   const user = await UserModel.findById(req.user.id);
-  
+
   if (!user) {
     return next(new ErrorHandler("User not found.", 404));
   }
-  
+
   const userResponse = UserModel.formatUserResponse(user);
-  
+
   res.status(200).json({
     success: true,
     user: userResponse,
@@ -150,13 +157,15 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
   const newUserData = {
     name: req.body.name,
     email: req.body.email,
-    phone: req.body.phone ? (() => {
-      try {
-        return convertPhoneToNumber(req.body.phone);
-      } catch (error) {
-        throw new ErrorHandler(error.message, 400);
-      }
-    })() : undefined,
+    phone: req.body.phone
+      ? (() => {
+          try {
+            return convertPhoneToNumber(req.body.phone);
+          } catch (error) {
+            throw new ErrorHandler(error.message, 400);
+          }
+        })()
+      : undefined,
     address: req.body.address,
     coverLetter: req.body.coverLetter,
     firstNiche: req.body.firstNiche,
@@ -177,12 +186,12 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
 
   if (req.files && req.files.resume) {
     const resume = req.files.resume;
-    
+
     // Delete old resume if exists
     if (req.user.resumePublicId) {
       await cloudinary.uploader.destroy(req.user.resumePublicId);
     }
-    
+
     try {
       const cloudinaryResponse = await cloudinary.uploader.upload(
         resume.tempFilePath,
@@ -196,11 +205,11 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
   }
 
   const user = await UserModel.updateById(req.user.id, newUserData);
-  
+
   if (!user) {
     return next(new ErrorHandler("Failed to update profile.", 500));
   }
-  
+
   const userResponse = UserModel.formatUserResponse(user);
 
   res.status(200).json({
@@ -220,19 +229,19 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
   }
 
   const user = await UserModel.findById(req.user.id);
-  
+
   if (!user) {
     return next(new ErrorHandler("User not found.", 404));
   }
 
   const isPasswordMatched = await UserModel.comparePassword(user, oldPassword);
-  
+
   if (!isPasswordMatched) {
     return next(new ErrorHandler("Old password is incorrect.", 400));
   }
 
-  const updatedUser = await UserModel.updateById(req.user.id, { 
-    password: newPassword 
+  const updatedUser = await UserModel.updateById(req.user.id, {
+    password: newPassword,
   });
 
   if (!updatedUser) {

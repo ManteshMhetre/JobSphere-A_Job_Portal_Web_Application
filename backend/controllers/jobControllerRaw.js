@@ -21,7 +21,16 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
   } = req.body;
 
   // Validate required fields
-  if (!title || !jobType || !location || !companyName || !responsibilities || !qualifications || !salary || !jobNiche) {
+  if (
+    !title ||
+    !jobType ||
+    !location ||
+    !companyName ||
+    !responsibilities ||
+    !qualifications ||
+    !salary ||
+    !jobNiche
+  ) {
     return next(new ErrorHandler("Please provide full job details.", 400));
   }
 
@@ -32,10 +41,17 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
 
   // Validate job data
   const validationErrors = JobModel.validateJobData({
-    title, jobType, location, companyName, responsibilities, 
-    qualifications, salary, jobNiche, postedBy: req.user.id
+    title,
+    jobType,
+    location,
+    companyName,
+    responsibilities,
+    qualifications,
+    salary,
+    jobNiche,
+    postedBy: req.user.id,
   });
-  
+
   if (validationErrors.length > 0) {
     return next(new ErrorHandler(validationErrors.join(", "), 400));
   }
@@ -68,23 +84,23 @@ export const postJob = catchAsyncErrors(async (req, res, next) => {
 
 export const getAllJobs = catchAsyncErrors(async (req, res, next) => {
   const { city, niche, searchKeyword } = req.query;
-  
+
   const filters = {};
-  
+
   if (city) {
     filters.location = city;
   }
-  
+
   if (niche) {
     filters.jobNiche = niche;
   }
-  
+
   if (searchKeyword) {
     filters.search = searchKeyword;
   }
 
   const jobs = await JobModel.findAll(filters);
-  
+
   res.status(200).json({
     success: true,
     jobs,
@@ -93,13 +109,14 @@ export const getAllJobs = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const getMyJobs = catchAsyncErrors(async (req, res, next) => {
-  
   if (req.user.role !== "Employer") {
-    return next(new ErrorHandler("Only employers can access this resource.", 400));
+    return next(
+      new ErrorHandler("Only employers can access this resource.", 400)
+    );
   }
 
   const jobs = await JobModel.findByUserId(req.user.id);
-  
+
   res.status(200).json({
     success: true,
     jobs,
@@ -109,19 +126,21 @@ export const getMyJobs = catchAsyncErrors(async (req, res, next) => {
 
 export const deleteJob = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
-  
+
   const job = await JobModel.findById(id);
-  
+
   if (!job) {
     return next(new ErrorHandler("Job not found.", 404));
   }
-  
+
   if (job.postedBy !== req.user.id) {
-    return next(new ErrorHandler("You are not authorized to delete this job.", 403));
+    return next(
+      new ErrorHandler("You are not authorized to delete this job.", 403)
+    );
   }
 
   await JobModel.deleteById(id);
-  
+
   res.status(200).json({
     success: true,
     message: "Job deleted successfully.",
@@ -130,13 +149,13 @@ export const deleteJob = catchAsyncErrors(async (req, res, next) => {
 
 export const getASingleJob = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
-  
+
   const job = await JobModel.findByIdWithPoster(id);
-  
+
   if (!job) {
     return next(new ErrorHandler("Job not found.", 404));
   }
-  
+
   res.status(200).json({
     success: true,
     job,

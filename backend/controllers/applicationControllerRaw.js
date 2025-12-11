@@ -16,7 +16,12 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
   // Convert phone to number using utility
   const phoneNumber = convertPhoneToNumber(phone);
   if (phoneNumber === null) {
-    return next(new ErrorHandler("Please provide a valid phone number (10-15 digits).", 400));
+    return next(
+      new ErrorHandler(
+        "Please provide a valid phone number (10-15 digits).",
+        400
+      )
+    );
   }
 
   // Check if user is a job seeker
@@ -31,9 +36,14 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
   }
 
   // Check if user already applied
-  const existingApplication = await ApplicationModel.findExisting(req.user.id, id);
+  const existingApplication = await ApplicationModel.findExisting(
+    req.user.id,
+    id
+  );
   if (existingApplication) {
-    return next(new ErrorHandler("You have already applied for this job.", 400));
+    return next(
+      new ErrorHandler("You have already applied for this job.", 400)
+    );
   }
 
   const applicationData = {
@@ -51,7 +61,8 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
   };
 
   // Validate application data
-  const validationErrors = ApplicationModel.validateApplicationData(applicationData);
+  const validationErrors =
+    ApplicationModel.validateApplicationData(applicationData);
   if (validationErrors.length > 0) {
     return next(new ErrorHandler(validationErrors.join(", "), 400));
   }
@@ -65,35 +76,43 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-export const employerGetAllApplication = catchAsyncErrors(async (req, res, next) => {
-  if (req.user.role !== "Employer") {
-    return next(new ErrorHandler("Only employers can access this resource.", 400));
+export const employerGetAllApplication = catchAsyncErrors(
+  async (req, res, next) => {
+    if (req.user.role !== "Employer") {
+      return next(
+        new ErrorHandler("Only employers can access this resource.", 400)
+      );
+    }
+
+    const applications = await ApplicationModel.findByEmployer(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      applications,
+    });
   }
+);
 
-  const applications = await ApplicationModel.findByEmployer(req.user.id);
-  
-  res.status(200).json({
-    success: true,
-    applications,
-  });
-});
+export const jobSeekerGetAllApplication = catchAsyncErrors(
+  async (req, res, next) => {
+    if (req.user.role !== "Job Seeker") {
+      return next(
+        new ErrorHandler("Only job seekers can access this resource.", 400)
+      );
+    }
 
-export const jobSeekerGetAllApplication = catchAsyncErrors(async (req, res, next) => {
-  if (req.user.role !== "Job Seeker") {
-    return next(new ErrorHandler("Only job seekers can access this resource.", 400));
+    const applications = await ApplicationModel.findByJobSeeker(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      applications,
+    });
   }
-
-  const applications = await ApplicationModel.findByJobSeeker(req.user.id);
-  
-  res.status(200).json({
-    success: true,
-    applications,
-  });
-});
+);
 
 export const deleteApplication = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
-  
+
   const application = await ApplicationModel.findById(id);
   if (!application) {
     return next(new ErrorHandler("Application not found.", 404));
@@ -103,14 +122,30 @@ export const deleteApplication = catchAsyncErrors(async (req, res, next) => {
 
   if (req.user.role === "Job Seeker") {
     if (application.jobSeekerUserId !== req.user.id) {
-      return next(new ErrorHandler("You are not authorized to delete this application.", 403));
+      return next(
+        new ErrorHandler(
+          "You are not authorized to delete this application.",
+          403
+        )
+      );
     }
-    deletedApplication = await ApplicationModel.deleteByJobSeeker(id, req.user.id);
+    deletedApplication = await ApplicationModel.deleteByJobSeeker(
+      id,
+      req.user.id
+    );
   } else if (req.user.role === "Employer") {
     if (application.employerUserId !== req.user.id) {
-      return next(new ErrorHandler("You are not authorized to delete this application.", 403));
+      return next(
+        new ErrorHandler(
+          "You are not authorized to delete this application.",
+          403
+        )
+      );
     }
-    deletedApplication = await ApplicationModel.deleteByEmployer(id, req.user.id);
+    deletedApplication = await ApplicationModel.deleteByEmployer(
+      id,
+      req.user.id
+    );
   } else {
     return next(new ErrorHandler("Invalid user role.", 400));
   }
