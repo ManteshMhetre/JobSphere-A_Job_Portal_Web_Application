@@ -10,7 +10,6 @@ let cachedPool = null;
 export async function getConnectionPool() {
   if (cachedPool) {
     try {
-      // Test the connection pool
       const client = await cachedPool.connect();
       await client.query("SELECT NOW()");
       client.release();
