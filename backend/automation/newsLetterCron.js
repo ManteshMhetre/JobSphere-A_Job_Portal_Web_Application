@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import { JobModel } from "../models/jobModelRaw.js";
-import { UserModel } from "../models/userModelRaw.js";
+import { JobModel } from "../models/jobModel.js";
+import { UserModel } from "../models/userModel.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
 export const newsLetterCron = () => {

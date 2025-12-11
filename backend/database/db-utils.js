@@ -1,4 +1,4 @@
-import { getConnectionPool, executeQuery } from "./pg-raw-connection.js";
+import { getConnectionPool, executeQuery } from "./pg-connection.js";
 
 /**
  * Database initialization utilities for raw PostgreSQL

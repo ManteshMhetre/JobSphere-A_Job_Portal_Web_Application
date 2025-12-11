@@ -1,4 +1,4 @@
-import { executeQuery } from "./pg-raw-connection.js";
+import { executeQuery } from "./pg-connection.js";
 
 /**
  * Check existing database schema and migrate if necessary

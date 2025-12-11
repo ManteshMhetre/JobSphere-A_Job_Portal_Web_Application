@@ -1,7 +1,4 @@
-import {
-  executeQuery,
-  executeTransaction,
-} from "../database/pg-raw-connection.js";
+import { executeQuery, executeTransaction } from "../database/pg-connection.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";

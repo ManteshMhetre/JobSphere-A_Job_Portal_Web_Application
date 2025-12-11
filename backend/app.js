@@ -7,14 +7,14 @@ import cookieParser from "cookie-parser";
 import {
   getConnectionPool,
   checkDatabaseConnection,
-} from "./database/pg-raw-connection.js";
+} from "./database/pg-connection.js";
 import { initializeDatabase, performHealthCheck } from "./database/db-utils.js";
 import { errorMiddleware } from "./middlewares/error.js";
 import fileUpload from "express-fileupload";
-import userRouter from "./routes/userRouterRaw.js";
-import jobRouter from "./routes/jobRouterRaw.js";
-import applicationRouter from "./routes/applicationRouterRaw.js";
-import { newsLetterCron } from "./automation/newsLetterCronRaw.js";
+import userRouter from "./routes/userRouter.js";
+import jobRouter from "./routes/jobRouter.js";
+import applicationRouter from "./routes/applicationRouter.js";
+import { newsLetterCron } from "./automation/newsLetterCron.js";
 
 const app = express();
 

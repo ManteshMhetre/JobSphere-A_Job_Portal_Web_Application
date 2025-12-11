@@ -1,7 +1,4 @@
-import {
-  executeQuery,
-  executeTransaction,
-} from "../database/pg-raw-connection.js";
+import { executeQuery, executeTransaction } from "../database/pg-connection.js";
 import { convertPhoneToNumber } from "../utils/phoneUtils.js";
 
 /**

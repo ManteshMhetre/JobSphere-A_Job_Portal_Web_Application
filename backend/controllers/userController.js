@@ -1,6 +1,6 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/error.js";
-import { UserModel } from "../models/userModelRaw.js";
+import { UserModel } from "../models/userModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import { sendToken } from "../utils/jwtToken.js";
 import { convertPhoneToNumber } from "../utils/phoneUtils.js";
