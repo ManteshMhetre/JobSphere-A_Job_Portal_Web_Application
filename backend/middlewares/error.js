@@ -13,12 +13,25 @@ export const errorMiddleware = (err, req, res, next) => {
   console.error(`Error (${err.statusCode}): ${err.message}`);
   if (err.stack) console.error(err.stack);
 
-  if (err.name === "CastError") {
-    const message = `Invalid ${err.path}`;
+  // PostgreSQL specific error codes
+  if (err.code === "22P02") {
+    // invalid_text_representation (invalid UUID/format)
+    const message = `Invalid ID format provided`;
     err = new ErrorHandler(message, 400);
   }
-  if (err.code === 11000) {
-    const message = `Duplicate ${Object.keys(err.keyValue)} Entered.`;
+  if (err.code === "23505") {
+    // unique_violation (PostgreSQL duplicate key)
+    const message = `Duplicate entry already exists`;
+    err = new ErrorHandler(message, 400);
+  }
+  if (err.code === "23503") {
+    // foreign_key_violation
+    const message = `Referenced record does not exist`;
+    err = new ErrorHandler(message, 400);
+  }
+  if (err.code === "23502") {
+    // not_null_violation
+    const message = `Required field is missing`;
     err = new ErrorHandler(message, 400);
   }
   if (err.name === "JsonWebTokenError") {
@@ -29,8 +42,16 @@ export const errorMiddleware = (err, req, res, next) => {
     const message = `Json Web Token is expired, Try again.`;
     err = new ErrorHandler(message, 400);
   }
-  if (err.name === "MongooseServerSelectionError" || err.message.includes("buffering timed out")) {
-    const message = `Database connection timed out. Please try again later.`;
+  if (
+    err.code === "ECONNREFUSED" ||
+    err.code === "ENOTFOUND" ||
+    err.code === "ETIMEDOUT" ||
+    err.code === "ECONNRESET" ||
+    err.message.includes("connection terminated") ||
+    err.message.includes("Connection terminated") ||
+    err.message.includes("ECONNRESET")
+  ) {
+    const message = `Database connection failed. Please try again later.`;
     err = new ErrorHandler(message, 503);
   }
 
@@ -40,5 +61,4 @@ export const errorMiddleware = (err, req, res, next) => {
   });
 };
 
-
-export default ErrorHandler
+export default ErrorHandler;

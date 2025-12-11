@@ -157,10 +157,9 @@ export const fetchJobs =
 export const fetchSingleJob = (jobId) => async (dispatch) => {
   dispatch(jobSlice.actions.requestForSingleJob());
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/job/get/${jobId}`,
-      { withCredentials: true }
-    );
+    const response = await axios.get(`${API_BASE_URL}/job/get/${jobId}`, {
+      withCredentials: true,
+    });
     dispatch(jobSlice.actions.successForSingleJob(response.data.job));
     dispatch(jobSlice.actions.clearAllErrors());
   } catch (error) {
@@ -171,11 +170,10 @@ export const fetchSingleJob = (jobId) => async (dispatch) => {
 export const postJob = (data) => async (dispatch) => {
   dispatch(jobSlice.actions.requestForPostJob());
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/job/post`,
-      data,
-      { withCredentials: true, headers: { "Content-Type": "application/json" } }
-    );
+    const response = await axios.post(`${API_BASE_URL}/job/post`, data, {
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
+    });
     dispatch(jobSlice.actions.successForPostJob(response.data.message));
     dispatch(jobSlice.actions.clearAllErrors());
   } catch (error) {
@@ -186,24 +184,26 @@ export const postJob = (data) => async (dispatch) => {
 export const getMyJobs = () => async (dispatch) => {
   dispatch(jobSlice.actions.requestForMyJobs());
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/job/getmyjobs`,
-      { withCredentials: true }
-    );
+    const response = await axios.get(`${API_BASE_URL}/job/getmyjobs`, {
+      withCredentials: true,
+    });
     dispatch(jobSlice.actions.successForMyJobs(response.data.myJobs));
     dispatch(jobSlice.actions.clearAllErrors());
   } catch (error) {
-    dispatch(jobSlice.actions.failureForMyJobs(error.response.data.message));
+    const msg =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Something went wrong";
+    dispatch(jobSlice.actions.failureForMyJobs(msg));
   }
 };
 
 export const deleteJob = (id) => async (dispatch) => {
   dispatch(jobSlice.actions.requestForDeleteJob());
   try {
-    const response = await axios.delete(
-      `${API_BASE_URL}/job/delete/${id}`,
-      { withCredentials: true }
-    );
+    const response = await axios.delete(`${API_BASE_URL}/job/delete/${id}`, {
+      withCredentials: true,
+    });
     dispatch(jobSlice.actions.successForDeleteJob(response.data.message));
     dispatch(clearAllJobErrors());
   } catch (error) {

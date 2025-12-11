@@ -4,8 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node serverPG.js",
-    "dev": "nodemon serverPG.js"
+    "start": "node serverRaw.js",
+    "dev": "nodemon serverRaw.js"
   },
   "author": "",
   "license": "ISC",
@@ -21,9 +21,10 @@
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.14",
-    "validator": "^13.12.0",
-    "sequelize": "^6.35.2",
     "pg": "^8.11.3",
-    "pg-hstore": "^2.3.4"
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.7",
+    "uuid": "^9.0.1",
+    "validator": "^13.12.0"
   }
 }
