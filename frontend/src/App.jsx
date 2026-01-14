@@ -20,7 +20,6 @@ const App = () => {
   const { error } = useSelector(state => state.user);
 
   useEffect(() => {
-    // Silent fetch user - don't show errors on login/register pages
     dispatch(getUser());
   }, [dispatch]);
 
